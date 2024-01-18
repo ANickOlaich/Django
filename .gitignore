@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Caching directories
+.cached/
+.cache/
+
+# Virtual environment
+venv/
+env/
+*.env
+
+# Database files
+db.sqlite3
+
+# Log files
+log/
+*.log
+
+# Temporary files
+*.swp
+*.swo
+*.bak
+*.py~ 
+
+# Media files
+media/
+
+# Static files
+staticfiles/
+
+# Environment variables
+.env
+
+# Pipenv
+Pipfile.lock
+
+# Visual Studio Code settings
+.vscode/
