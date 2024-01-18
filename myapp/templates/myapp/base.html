@@ -1,0 +1,52 @@
+<!-- myapp/templates/myapp/base.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}My Project{% endblock %}</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+
+    {% load bootstrap4 %}
+    {% bootstrap_css %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-12">
+                        {% block header %}{% endblock %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        {% block content %}{% endblock %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        {% block footer %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container">
+       
+    </div>
+    {% bootstrap_javascript %}
+   <!-- Загрузка библиотеки earcut -->
+<!--<script src="https://unpkg.com/earcut@2.2.4/dist/earcut.dev.js"></script>-->
+
+<!-- Загрузка Babylon.js и Babylon GUI -->
+<!--<script src="https://cdn.babylonjs.com/babylon.js"></script>-->
+<!--<script src="https://cdn.babylonjs.com/gui/babylon.gui.js"></script>-->
+
+
+
+
+    
+</body>
+</html>

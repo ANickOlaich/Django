@@ -1,0 +1,13 @@
+<!-- myapp/templates/myapp/upload_json.html -->
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+  <div class="module">
+    <h2>Загрузить JSON файл</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Загрузить</button>
+    </form>
+  </div>
+{% endblock %}

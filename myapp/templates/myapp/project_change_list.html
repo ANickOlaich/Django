@@ -1,0 +1,12 @@
+<!-- myapp/templates/myapp/project_change_list.html -->
+{% extends 'admin/change_list.html' %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    <li>
+        <a href="{{ upload_json_url }}" class="addlink">
+            <img src="{% static 'admin/img/icon-changelink.svg' %}" alt="Upload JSON">
+            Upload JSON
+        </a>
+    </li>
+{% endblock %}

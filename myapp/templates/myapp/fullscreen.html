@@ -1,0 +1,143 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}My Project{% endblock %}</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+
+
+  <div class="slide-container" style="top: 100px;">
+    <div class="slide-lft" style="top: 220px;">Вид</div>
+    <div class="slide-in" style="top: 100px;">
+      <div class="d-grid p-2">
+        <button type="button" class="btn btn-primary btn-lg" onclick="viewButtonClick('Дизайнер', this)">Дизайнер</button>
+        <button type="button" class="btn btn-outline-primary btn-lg" onclick="viewButtonClick('Сборщик', this)">Сборщик</button>
+      </div>
+      <div class="d-grid p-2">
+        <button type="button" class="btn btn-outline-success btn-lg" onclick="colorButtonClick('Цветной', this)">Цветной</button>
+        <button type="button" class="btn btn-success btn-lg" onclick="colorButtonClick('Цветной каркас', this)">Цветной каркас</button>
+        <button type="button" class="btn btn-outline-success btn-lg" onclick="colorButtonClick('Черно-белый', this)">Черно-белый</button>
+        <button type="button" class="btn btn-outline-success btn-lg" onclick="colorButtonClick('Полупрозрачный', this)">Полупрозрачный</button>
+        <button type="button" class="btn btn-outline-success btn-lg" onclick="colorButtonClick('Каркасный', this)">Каркасный</button>
+      </div>
+      <div class="d-grid p-2">
+        <div>
+          <label for="lightRange" class="form-label">Свет</label>
+        </div>
+        <div>
+          <input type="range" class="form-range" min="0" max="2" step="0.1" value="1" id="lightRange" onchange="handleLightChange(this.value)">
+        </div>
+        <div>
+          <label for="backgroundRange" class="form-label">Фон</label>
+        </div>
+        <div>
+          <input type="range" class="form-range" min="0.7" max="1" step="0.02" value="0.9" id="backgroundRange" onchange="handleBackgroundChange(this.value)">
+        </div>
+        <div>
+          <label for="shadowRange" class="form-label">Тень</label>
+        </div>
+        <div>
+          <input type="range" class="form-range" min="-20" max="20" step="1" value="10" id="shadowRange" onchange="handleShadowChange(this.value)">
+        </div>
+      </div>
+           
+    </div>
+  </div>
+  
+  <div class="slide-container" style="top: 250px;">
+    <div class="slide-lft" style="top: 370px;">Блоки</div>
+    <div class="slide-in" style="top: 100px;">
+      <div class="d-grid gap-2">
+        <button type="button" class="btn btn-success btn-lg">Цветной</button>
+        <button type="button" class="btn btn-outline-success btn-lg">Черно-белый</button>
+        <button type="button" class="btn btn-outline-success btn-lg">Полупрозрачный</button>
+        <button type="button" class="btn btn-outline-success btn-lg">Каркасный</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-container" style="top: 400px;">
+    <div class="slide-lft" style="top: 520px;">Материалы</div>
+    <div class="slide-in" style="top: 100px;">
+      <!-- Контейнер для карточек -->
+        <div class="container" id="cardContainer"></div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-container" style="top: 550px;">
+    <div class="slide-lft" style="top: 670px;">Фурнитура</div>
+    <div class="slide-in" style="top: 100px;">
+      <div class="d-grid gap-2">
+        <button type="button" class="btn btn-success btn-lg">Цветной</button>
+        <button type="button" class="btn btn-outline-success btn-lg">Черно-белый</button>
+        <button type="button" class="btn btn-outline-success btn-lg">Полупрозрачный</button>
+        <button type="button" class="btn btn-outline-success btn-lg">Каркасный</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-container" style="top: 700px;">
+    <div class="slide-lft" style="top: 820px;">Показать</div>
+    <div class="slide-in" style="top: 100px;">
+      <div class="d-grid gap-2">
+        <button type="button" class="btn btn-success btn-lg" onclick="seeButtonClick('Фасады', this)">Фасады</button>
+        <button type="button" class="btn btn-outline-success btn-lg" onclick="seeButtonClick('Фурнитура', this)">Фурнитура</button>
+        <button type="button" class="btn btn-success btn-lg" onclick="seeButtonClick('Размеры', this)">Размеры</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id= "buttonAdmin" class="slide-container" style="top: 850px;">
+    <div class="slide-lft" style="top: 970px;">Админ</div>
+    <div class="slide-in" style="top: 100px;">
+      <div class="d-grid gap-2">
+        <button type="button" class="btn btn-outline-success btn-lg" onclick="screanshot()">Скриншот</button>
+      </div>
+    </div>
+  </div>
+  
+  
+    <!-- HTML-элемент для текста -->
+    <div id="overlay-text">{{ project.name }}</div>
+    <div id="panel-info" data-project-id="{{ project.id }}"></div>
+
+<!-- Модальное окно -->
+<div class="modal fade" id="customModal" tabindex="-1" role="dialog" aria-labelledby="customModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="customModalLabel">Материал</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Здесь может быть дополнительная информация в модальном окне -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Спиннер -->
+<div id="spinner" class="lds-ring"><div></div><div></div><div></div><div></div></div>
+
+
+    <script src="https://kit.fontawesome.com/47e124438e.js" crossorigin="anonymous"></script>  
+   
+  <script src="https://cdn.jsdelivr.net/npm/three@0.122.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.122.0/examples/js/controls/OrbitControls.min.js"></script>
+  
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <script src="{% static 'js/script_three.js' %}"></script>
+</body>
+</html>
