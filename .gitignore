@@ -42,3 +42,5 @@ Pipfile.lock
 
 # Visual Studio Code settings
 .vscode/
+
+mebelshik/settings.py
