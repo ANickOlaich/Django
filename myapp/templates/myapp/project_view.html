@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ project.name }}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+    <meta name="description" content="{{ project.description}}"> 
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+      /* CSS для фиксации положения футера и увеличения размера иконок */
+      .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            padding: 10px 0;
+            z-index: 1000; /* Устанавливаем более высокий индекс слоя */
+            opacity: 0.5; /* Устанавливаем прозрачность 50% */
+        }
+
+        .footer i {
+            font-size: 96px; /* Увеличение размера иконок */
+            margin-right: 5px; /* Добавление небольшого отступа между иконкой и текстом */
+            cursor: pointer; /* Добавление курсора при наведении для указания на кликабельность */
+            z-index: 1000; /* Устанавливаем более высокий индекс слоя */
+        }
+
+        /* Стили для выделения фона при нажатии */
+        .selected {
+            opacity: 0.2; /* Устанавливаем прозрачность 50% */
+        }
+  </style>
+</head>
+<body>
+
+
+
+  
+  
+    <!-- HTML-элемент для текста -->
+    <div id="overlay-text">{{ project.name }}</div>
+    <div id="overlay-text">{{ project }}</div>
+    <div id="panel-info" data-project-id="{{ project.id }}"></div>
+
+
+
+
+<!-- Спиннер -->
+<div id="spinner" class="lds-ring"><div></div><div></div><div></div><div></div></div>
+
+<footer class="footer">
+  <div class="container">
+      <div class="row">
+          <div class="col">
+              <i class="fas fa-door-open" onclick="seeButtonClick('Фасады', this)"></i>
+          </div>
+          <div class="col">
+              <i class="fas fa-regular fa-up-right-and-down-left-from-center" onclick="seeButtonClick('Размеры', this)"></i>
+          </div>
+          <div class="col">
+              <i class="fas fa-eye" onclick="seeButtonClick('Вид', this)"></i>
+          </div>
+      </div>
+  </div>
+</footer>
+
+<!-- Скрипты и прочий контент -->
+<script>
+  function changeIconBackground(icon) {
+      icon.classList.toggle('selected'); // Добавляем или удаляем класс 'selected' при клике
+  }
+</script>
+
+
+    <script src="https://kit.fontawesome.com/47e124438e.js" crossorigin="anonymous"></script>  
+   
+  <script src="https://cdn.jsdelivr.net/npm/three@0.122.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.122.0/examples/js/controls/OrbitControls.min.js"></script>
+  
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <script src="{% static 'js/view.js' %}"></script>
+</body>
+</html>

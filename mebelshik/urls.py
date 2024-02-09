@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('myapp/', include('myapp.urls')),  # Проверьте пространство имен
-    path('projects/', include('myapp.urls')),  # Убран префикс 'myapp'
+    path('projects/', include('myapp.url_projects')),  # Убран префикс 'myapp'
 ]
 
 # Добавляем обслуживание статических и медиа файлов в режиме разработки

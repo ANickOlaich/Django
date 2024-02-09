@@ -2,7 +2,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{% block title %}My Project{% endblock %}</title>
+    <title>{{ project.name }}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+    <meta name="description" content="{{ project.description}}"> 
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
@@ -105,6 +107,7 @@
   
     <!-- HTML-элемент для текста -->
     <div id="overlay-text">{{ project.name }}</div>
+    <div id="overlay-text">{{ project }}</div>
     <div id="panel-info" data-project-id="{{ project.id }}"></div>
 
 <!-- Модальное окно -->

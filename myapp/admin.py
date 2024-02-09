@@ -26,9 +26,9 @@ class ProjectAdmin(admin.ModelAdmin):
     display_image.short_description = 'Image'
 
     def frontend_link(self, obj):
-        frontend_url = reverse('project_detail', kwargs={'project_id': obj.id})
+        frontend_url = reverse('project_view', kwargs={'project_id': obj.id})
         #admin_url = reverse('admin:your_app_name_project_change', args=[obj.id])
-        link = f'<a class="button" href="{frontend_url}?Mode=admin" target="_blank">На сайте</a>'
+        link = f'<a class="button" href="{frontend_url}" target="_blank">На сайте</a>'
         return format_html(link)
 
     frontend_link.short_description = 'Frontend Link'

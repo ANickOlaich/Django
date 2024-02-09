@@ -18,7 +18,12 @@ class PanelList(generics.ListAPIView):
 
 
 
-def project_detail(request, project_id):
+def project_view(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    return render(request, 'myapp/project_view.html', {'project': project})
+    return render(request, 'myapp/project_detail.html', {'project': project})
+
+def project_edit(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     return render(request, 'myapp/fullscreen.html', {'project': project})
     return render(request, 'myapp/project_detail.html', {'project': project})

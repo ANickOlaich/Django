@@ -29,6 +29,8 @@ log/
 # Media files
 media/
 
+mebelshik/
+
 # Static files
 staticfiles/
 

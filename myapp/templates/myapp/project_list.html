@@ -7,9 +7,42 @@
     {% for project in projects %}
         <li class="list-group-item">
             <a href="{% url 'project_detail' project_id=project.id %}">
-                {{ project.name }} - {{ project.description }} ({{ project.status }})
+                <article class="post vt-post">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-5 col-md-5 col-lg-4">
+                            <div class="post-type post-img">
+                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" class="img-responsive" alt="image post"></a>
+                            </div>
+                            <div class="author-info author-info-2">
+                                <ul class="list-inline">
+                                    <li>
+                                        <div class="info">
+                                            <p>Добавлен: 
+                                            <strong>{{project.created_at}}</strong>
+                                            </p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="info">
+                                            <p>Статус:
+                                            <strong>{{ project.status }}</strong>
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7 col-lg-8">
+                            <div class="caption">
+                                <h3 class="md-heading">{{ project.name }}</h3>
+                                <p> {{ project.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
             </a>
         </li>
+        
     {% endfor %}
 </ul>
 {% endblock %}

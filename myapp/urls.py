@@ -1,13 +1,11 @@
 # myapp/urls.py
 from django.urls import path
-from .views import project_list, project_detail, upload_json, PanelList, MaterialDetail, ProjectInfo, SizeList, receive_screenshot
+from .views import upload_json, PanelList, MaterialDetail, ProjectInfo, SizeList, receive_screenshot
 
 
 
 urlpatterns = [
-    path('', project_list, name='project_list'),
-    path('<int:project_id>/', project_detail, name='project_detail'),
-    #path('upload_json/', upload_json, name='upload_json'),
+   
     path('api/panels/<int:project_id>/', PanelList.as_view(), name='panel-list'),
     path('api/material/<int:pk>/', MaterialDetail.as_view(), name='material_detail_api'),
     path('api/project/<int:pk>/', ProjectInfo.as_view(), name='project_detail_api'),
