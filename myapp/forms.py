@@ -14,3 +14,7 @@ class MaterialForm(forms.ModelForm):
     class Meta:
         model = Material
         fields = '__all__'
+    
+class ImageForm(forms.Form):
+    image_data = forms.CharField(widget=forms.HiddenInput())
+

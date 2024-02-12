@@ -20,6 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('',include('myapp.home_urls')),
     path('admin/', admin.site.urls),
     path('myapp/', include('myapp.urls')),  # Проверьте пространство имен
     path('projects/', include('myapp.url_projects')),  # Убран префикс 'myapp'

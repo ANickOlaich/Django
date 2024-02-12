@@ -1,13 +1,16 @@
+from django.views.generic.edit import FormView
 from rest_framework import generics
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Project,Panel,Material,Size
 from django.contrib import messages
-from .forms import JSONFileUploadForm
+from .forms import JSONFileUploadForm, ImageForm
 from django.urls import reverse
 from .serializers import PanelSerializer,MaterialSerializer, ProjectSerializer, SizeSerializer
 from django.http import Http404
 from django.http import JsonResponse
-import base64
+import base64,os,json
+from .models import Project
+
 
 class PanelList(generics.ListAPIView):
     serializer_class = PanelSerializer
@@ -16,7 +19,109 @@ class PanelList(generics.ListAPIView):
         project_id = self.kwargs['project_id']
         return Panel.objects.filter(project__id=project_id).prefetch_related('contours')
 
+class SaveImageView(FormView):
+    form_class = ImageForm
 
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            try:
+                # Получаем данные изображения из формы
+                image_data = form.cleaned_data['image_data']
+                # Получаем project_id из POST-параметров
+                project_id = request.POST.get('project_id')
+                
+                # Проверяем наличие project_id
+                if not project_id:
+                    raise ValueError("Project ID is missing")
+
+                # Извлекаем бинарные данные из base64
+                image_data = base64.b64decode(image_data.split(',')[1])
+
+                # Генерируем имя файла
+                image_name = f'project_{project_id}_image.jpg'
+
+                # Путь для сохранения изображения
+                image_path = os.path.join('myapp', 'static', 'images', image_name)
+
+                # Сохраняем изображение на сервере
+                with open(image_path, 'wb') as f:
+                    f.write(image_data)
+
+                # Получаем объект Project по project_id
+                project = Project.objects.get(pk=project_id)
+
+                # Обновляем поле image модели Project
+                project.image = 'images/'+image_name
+                project.save()
+
+                # Возвращаем JSON-ответ об успешном сохранении
+                return JsonResponse({'status': 'success'})
+            except Exception as e:
+                # Возвращаем JSON-ответ с сообщением об ошибке
+                return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        else:
+            # Возвращаем JSON-ответ с ошибками валидации формы
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+def home(request):
+    return render(request,'home.html')
+
+def upload_walls(request):
+    if request.method == 'POST' and request.FILES['walls']:
+        project_id = request.POST.get('project_id') # Получаем project_id из POST-параметров
+
+        # Получаем файл из запроса
+        uploaded_file = request.FILES['walls']
+
+        fileName = "wall_"+project_id
+        
+        # Определяем путь для сохранения файла
+        file_path = os.path.join('myapp','static','walls', fileName)
+
+        # Сохраняем файл на сервере
+        with open(file_path, 'wb+') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
+
+        project = Project.objects.get(id=project_id)
+        
+        # Сохраняем файл, автоматически связывая его с объектом Project
+        project.walls = fileName
+        project.save()
+
+        # Возвращаем успешный ответ
+        return JsonResponse({'success': True, 'file_url': fileName})
+    else:
+        # Если запрос не методом POST или файл не был передан, возвращаем ошибку
+        return JsonResponse({'success': False, 'error': 'Файл не был передан или запрос не методом POST'}, status=400)
+
+
+
+
+
+
+def update_project(request):
+    if request.method == 'POST':
+        try:
+            print(request.body)
+            data = json.loads(request.body)  # Получаем данные из тела запроса в формате JSON
+            project_id = data.get('projectId')  # Получаем ID проекта из данных JSON
+            project = Project.objects.get(pk=project_id)  # Получаем объект проекта по его ID
+            # Обновляем данные проекта из данных JSON
+            project.name = data.get('projectName')
+            project.description = data.get('projectDescription')
+            project.status = data.get('projectStatus')
+            project.visibility = data.get('isOnMain')
+            # Обновляем другие поля проекта при необходимости
+            project.save()  # Сохраняем обновленные данные проекта
+            return JsonResponse({'success': True})  # Отправляем JSON-ответ об успешном обновлении
+        except Project.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Проект не найден'}, status=404)  # Отправляем JSON-ответ с ошибкой 404 Not Found
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)  # Отправляем JSON-ответ с ошибкой 400 Bad Request
+    else:
+        return JsonResponse({'error': 'Метод не поддерживается'}, status=405)  # Отправляем JSON-ответ с ошибкой и статусом 405 Method Not Allowed для GET-запросов
 
 def project_view(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
@@ -25,7 +130,7 @@ def project_view(request, project_id):
 
 def project_edit(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    return render(request, 'myapp/fullscreen.html', {'project': project})
+    return render(request, 'myapp/project_edit.html', {'project': project})
     return render(request, 'myapp/project_detail.html', {'project': project})
 
 def project_list(request):

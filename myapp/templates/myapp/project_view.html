@@ -5,32 +5,14 @@
     <title>{{ project.name }}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
     <meta name="description" content="{{ project.description}}"> 
+   <!-- Open Graph Generated: a.pr-cy.ru -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ project.name }}">
+    <meta property="og:description" content="{{ project.description }}">
+    <meta property="og:image" content="{% static project.image %}">
+    <meta property="og:site_name" content="Мебельщик">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <style>
-      /* CSS для фиксации положения футера и увеличения размера иконок */
-      .footer {
-            position: fixed;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            padding: 10px 0;
-            z-index: 1000; /* Устанавливаем более высокий индекс слоя */
-            opacity: 0.5; /* Устанавливаем прозрачность 50% */
-        }
-
-        .footer i {
-            font-size: 96px; /* Увеличение размера иконок */
-            margin-right: 5px; /* Добавление небольшого отступа между иконкой и текстом */
-            cursor: pointer; /* Добавление курсора при наведении для указания на кликабельность */
-            z-index: 1000; /* Устанавливаем более высокий индекс слоя */
-        }
-
-        /* Стили для выделения фона при нажатии */
-        .selected {
-            opacity: 0.2; /* Устанавливаем прозрачность 50% */
-        }
-  </style>
 </head>
 <body>
 

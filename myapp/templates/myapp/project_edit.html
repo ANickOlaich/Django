@@ -1,0 +1,142 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block title %}Edit{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-3">
+            <div class="row mt-3 mb-3">
+                <div class="col-md-4">
+                    <button id="facadeButton" class="btn btn-primary btn-block" onclick="seeButtonClick('Фасады', this)">Фасады</button>
+                </div>
+                <div class="col-md-4">
+                    <button id="sizeButton" class="btn btn-primary btn-block" onclick="seeButtonClick('Размеры', this)">Размеры</button>
+                </div>
+                <div class="col-md-4">
+                    <button id="viewButton" class="btn btn-primary btn-block" onclick="seeButtonClick('Вид', this)">Вид</button>
+                </div>
+            </div>
+            <div class="accordion" id="accordionEdit">
+                <div class="card">
+                  <div class="card-header" id="headingDescription">
+                    <h2 class="mb-0">
+                      <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseDescription" aria-expanded="true" aria-controls="collapseDescription">
+                        Описание
+                      </button>
+                    </h2>
+                  </div>
+              
+                  <div id="collapseDescription" class="collapse" aria-labelledby="headingDescription" data-parent="#accordionEdit">
+                    <div class="card-body">
+                      <div class="mb-3">
+                          <button id="facadeButton" class="btn btn-primary btn-block" onclick="photoButtonClick(this)">Фото</button>
+                      </div>
+                      <div class="mb-3">
+                          <label for="projectName" class="form-label">Имя проекта</label> 
+                          <input type="text" class="form-control" id="projectName" name="projectName" value="{{ project.name }}">
+                      </div>
+                      <div class="mb-3">
+                          <label for="projectDescription" class="form-label">Описание проекта</label> 
+                          <textarea class="form-control" id="projectDescription" name="projectDescription" aria-label="With textarea">{{ project.description }}</textarea>
+                      </div>
+                      <div class="mb-3">
+                          <select class="form-select form-select-lg mb-3" aria-label="Large select example" id="projectStatus">
+                              <option value="Новый" {% if project.status == "Новый" %}selected{% endif %}>Новый</option>
+                              <option value="В работе" {% if project.status == "В работе" %}selected{% endif %}>В работе</option>
+                              <option value="Завершен" {% if project.status == "Завершен" %}selected{% endif %}>Завершен</option>
+                          </select>                        
+                      </div>
+                      <div class="mb-3">
+                          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" {% if project.visibility %}checked{% endif %}>
+                          <label class="form-check-label" for="flexCheckDefault">
+                              На главной
+                          </label>
+                      </div>
+                      <button id="updateProject" class="btn btn-primary btn-block" onclick="updateProject(this)">Обновить</button>
+                  </div>
+                  
+                  
+                  
+                  </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" id="headingEnvironment">
+                      <h2 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseEnvironment" aria-expanded="false" aria-controls="collapseEnvironment">
+                          Окружение
+                        </button>
+                      </h2>
+                    </div>
+                
+                    <div id="collapseEnvironment" class="collapse" aria-labelledby="headingEnvironment" data-parent="#accordionEdit">
+                      <div class="card-body">
+                        
+                      </div>
+                    </div>
+                  </div>
+                
+                  <div class="card">
+                    <div class="card-header" id="headingWalls">
+                      <h2 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseWalls" aria-expanded="false" aria-controls="collapseWalls">
+                          Стены
+                        </button>
+                      </h2>
+                    </div>
+                
+                    <div id="collapseWalls" class="collapse" aria-labelledby="headingWalls" data-parent="#accordionEdit">
+                      <div class="card-body">
+                        <div class="input-group">
+                          <input type="file" class="form-control" id="walls" aria-describedby="wallsAddon" aria-label="Upload">
+                          <button class="btn btn-outline-secondary" type="button" id="wallsAddon" onclick="uploadWalls(this)">Сохранить</button>
+                        </div>                  
+                        
+                      </div>
+                    </div>
+                  </div>
+
+                <div class="card">
+                  <div class="card-header" id="headingMaterials">
+                    <h2 class="mb-0">
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Материалы
+                      </button>
+                    </h2>
+                  </div>
+                  <div id="collapseTwo" class="collapse" aria-labelledby="headingMaterials" data-parent="#accordionEdit">
+                    <div class="card-body">
+                      
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="headingThree">
+                    <h2 class="mb-0">
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Размеры
+                      </button>
+                    </h2>
+                  </div>
+                  <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionEdit">
+                    <div class="card-body">
+                     <div id="sizes"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        </div>
+        <div class="col-md-9">
+            <canvas id="threeCanvas" style="height: 100vh; width: 100%;"></canvas>
+        </div>
+    </div>
+    <div id="panel-info" data-project-id="{{ project.id }}"></div>
+{% endblock %}
+
+{% block footer %}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.122.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.122.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="{% static 'js/edit.js' %}"></script>
+{% endblock %}

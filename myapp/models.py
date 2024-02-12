@@ -2,6 +2,7 @@
 from django.db import models
 from colorfield.fields import ColorField
 
+
 def project_json_upload_to(instance, filename):
     return f'{filename}'
 
@@ -14,9 +15,10 @@ class Project(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     author = models.CharField(max_length=255)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
-    image = models.ImageField(upload_to='project_images/', blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Новый')
+    image = models.ImageField(upload_to='images/', blank=True, null=True)
     json_file = models.FileField(upload_to=project_json_upload_to, blank=True, null=True)
+    walls = models.FileField(upload_to='walls/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     size_x = models.FloatField(default = 2000)
     size_y = models.FloatField(default = 2000)
