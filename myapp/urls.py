@@ -1,6 +1,6 @@
 # myapp/urls.py
 from django.urls import path
-from .views import upload_walls,update_project,SaveImageView, upload_json, PanelList, MaterialDetail, ProjectInfo, SizeList, receive_screenshot, home
+from .views import upload_walls,update_project,SaveImageView, upload_json, PanelList, MaterialDetail, ProjectInfo, SizeList, receive_screenshot, home, Line3DList
 
 
 
@@ -13,5 +13,6 @@ urlpatterns = [
     path('api/save_image/', SaveImageView.as_view(), name='save_image'),
     path('api/update_project/', update_project, name='update_project_api'),
     path('api/upload_walls/', upload_walls, name='upload_walls_api'),
+    path('api/line3d/<int:project_id>/',Line3DList.as_view(), name='line3d_detail_api'),
 ]
 

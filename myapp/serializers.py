@@ -1,6 +1,6 @@
 # serializers.py
 from rest_framework import serializers
-from .models import Panel, Contour, Material, Project, Size
+from .models import Panel, Contour, Material, Project, Size, Line3D
 
 class ContourSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,5 +27,10 @@ class ProjectSerializer(serializers.ModelSerializer):
 class SizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Size
+        fields = '__all__'
+
+class Line3DSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Line3D
         fields = '__all__'
 

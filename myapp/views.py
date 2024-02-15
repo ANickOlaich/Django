@@ -1,15 +1,15 @@
 from django.views.generic.edit import FormView
 from rest_framework import generics
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Project,Panel,Material,Size
+from .models import Project,Panel,Material,Size, Line3D
 from django.contrib import messages
 from .forms import JSONFileUploadForm, ImageForm
 from django.urls import reverse
-from .serializers import PanelSerializer,MaterialSerializer, ProjectSerializer, SizeSerializer
+from .serializers import PanelSerializer,MaterialSerializer, ProjectSerializer, SizeSerializer, Line3DSerializer
 from django.http import Http404
 from django.http import JsonResponse
 import base64,os,json
-from .models import Project
+
 
 
 class PanelList(generics.ListAPIView):
@@ -177,6 +177,13 @@ class SizeList(generics.ListAPIView):
     def get_queryset(self):
         project_id = self.kwargs['project_id']
         return Size.objects.filter(project__id=project_id)
+
+class Line3DList(generics.ListAPIView):
+    serializer_class = Line3DSerializer
+
+    def get_queryset(self):
+        project_id = self.kwargs['project_id']
+        return Line3D.objects.filter(project__id=project_id)
 
 def receive_screenshot(request):
     print(request)

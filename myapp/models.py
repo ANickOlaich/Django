@@ -119,6 +119,26 @@ class Size(models.Model):
     def __str__(self):
         return f"{self.project} - {self.size} "
 
+class Line3D(models.Model):
+    name = models.CharField(max_length=50)
+    position_x = models.FloatField(default=0)
+    position_y = models.FloatField(default=0)
+    position_z = models.FloatField(default=0)
+    rot_x = models.FloatField(default=0)
+    rot_y = models.FloatField(default=0)
+    rot_z = models.FloatField(default=0)
+    rot_w = models.FloatField(default=1)
+    pos1_x = models.FloatField()
+    pos1_y = models.FloatField()
+    pos1_z = models.FloatField()
+    pos2_x = models.FloatField()
+    pos2_y = models.FloatField()
+    pos2_z = models.FloatField()
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, default=0)
+
+    def __str__(self):
+        return self.name
+
 
 
 

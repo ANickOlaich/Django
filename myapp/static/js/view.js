@@ -42,9 +42,11 @@ function getModeFromUrl() {
   const frameGroup = new THREE.Group();
   const fasads = new THREE.Group();
   const arrowsGroup = new THREE.Group();
+  const line3dGroup = new THREE.Group();
   scene.add(frameGroup);
   scene.add(fasads);
   scene.add(arrowsGroup);
+  scene.add(line3dGroup);
   
   // Создаем камеру
   var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
@@ -102,6 +104,25 @@ function getModeFromUrl() {
     });
   }
   
+
+  function createLine(line){
+    // Создаем геометрию линии
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push(
+        new THREE.Vector3(line.pos1_x/1000, line.pos1_y/1000, line.pos1_z/1000),
+        new THREE.Vector3(line.pos2_x/1000, line.pos2_y/1000, line.pos2_z/1000),
+    );
+
+    // Создаем материал для линии
+    var material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+
+    // Создаем линию
+    var line3D = new THREE.Line(geometry, material);
+
+    // Добавляем линию на сцену
+    line3dGroup.add(line3D);
+
+  }
   
   //------------------------Стрелки------------------------
   function createArrows(size){
@@ -230,6 +251,17 @@ function getModeFromUrl() {
     
       return Promise.all(materialsPromises);
     }
+
+    async function fetchLinesData(project_id) {
+      try {
+        const response = await fetch(`/myapp/api/line3d/${project_id}/`);
+          const data = await response.json();
+          return data;
+    
+      } catch (error) {
+        throw new Error(`Ошибка при получении данных о линиях: ${error}`);
+      }
+    }
     
     // Функция для создания панелей на основе данных
     function createPanels(panelsData, materialsData, scene) {
@@ -280,11 +312,17 @@ function getModeFromUrl() {
         ////console.log(uniqueMaterialsIds);
         // Получаем данные о материалах
         const materialsData = await fetchMaterialsData(uniqueMaterialsIds);
+
         ////console.log(materialsData)
         displayMaterials(materialsData);
         const sizesData = await fetchSizes(project_id);
         sizesData.forEach(size=>{
           createArrows(size);
+        })
+        const linesData = await fetchLinesData(project_id);
+        console.log(linesData);
+        linesData.forEach(line=>{
+          createLine(line);
         })
         //console.log(sizesData);
         

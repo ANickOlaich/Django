@@ -1,12 +1,13 @@
 # myapp/admin.py
 from django.contrib import admin
-from .models import Project, Block, Panel, Contour, Material, Size
+from .models import Project, Block, Panel, Contour, Material, Size, Line3D
 from django.urls import reverse
 from django.utils.html import format_html
 import json
 import os
 import shutil  # Импортируем модуль shutil для удаления директорий
 from .forms import MaterialForm
+from .import_json import import_size, import_panels, import_line 
 
 class ProjectAdmin(admin.ModelAdmin):
     changelist_view_template = 'myapp/project_change_list.html'
@@ -71,186 +72,14 @@ class ProjectAdmin(admin.ModelAdmin):
                         obj.size_x = project_data['Size']['x']
                         obj.size_y = project_data['Size']['y']
                         obj.size_z = project_data['Size']['z']
-                          # Если объект новый и author не установлен, установить его на имя текущего пользователя
-                       
-                        
-                        size_datas = json_data.get('Size',[])
-                        for size_data in size_datas:
-                            print(f"size_data: {size_data}")
-                            Size.objects.create(
-                                project=obj,
-                                article = size_data['ArtPos'],
-                                pos_x = size_data['PositionX'],
-                                pos_y = size_data['PositionY'],
-                                pos_z = size_data['PositionZ'],
-                                rot_x = size_data['RotX'],
-                                rot_y = size_data['RotY'],
-                                rot_z = size_data['RotZ'],
-                                rot_w = size_data['RotW'],
-                                size = size_data['Size'],
-                                length = size_data['Length'],
-                                width = size_data['Width'],
-                            )
-                        # Добавляем или обновляем панели в проекте
-                        panels_data = json_data.get('Panel', [])
-                        #print(f"panels_data: {panels_data}")
-                        for panel_data in panels_data:
-                            #print(f"panel_data: {panel_data}")
-
-                            # Получаем или создаем блок
-                            block, created = Block.objects.get_or_create(
-                                name=panel_data['Owner'],  # Используем имя владельца панели как имя блока
-                                project=obj,
-                                defaults={
-                                    'visibility': True,
-                                    'color': '#FFFFFF',
-                                    'position_x': 0.0,
-                                    'position_y': 0.0,
-                                    'position_z': 0.0,
-                                    'rotation_x': 0.0,
-                                    'rotation_y': 0.0,
-                                    'rotation_z': 0.0,
-                                    'rotation_w': 1.0,
-                                }
-                            )
-                            # Получаем или создаем материал
-                            mat_id = 0
-                            if "MaterialId" in panel_data:
-                                mat_id = panel_data["MaterialId"]
-                            
-                            material_instance, created = Material.objects.get_or_create(article=mat_id, defaults={
-                                'name': panel_data['MaterialName'],
-                                'article': mat_id,  # Добавьте вашу логику для получения артикула
-                                'page_link': '',  # Добавьте вашу логику для получения ссылки на страницу
-                                'texture_link': ''  # Добавьте вашу логику для получения ссылки на текстуру
-                            })
-                            # Добавляем или обновляем панель в блоке
-                            panel = Panel.objects.create(
-                                name=panel_data['Name'],
-                                project=obj,
-                                block=block,
-                                position=panel_data['ArtPos'],
-                                length=panel_data['Length'],
-                                width=panel_data['Width'],
-                                height=panel_data['Thickness'],
-                                position_x=panel_data['PositionX'],
-                                position_y=panel_data['PositionY'],
-                                position_z=panel_data['PositionZ'],
-                                material=material_instance,
-                                rotation_x=panel_data['RotX'],
-                                rotation_y=panel_data['RotY'],
-                                rotation_z=panel_data['RotZ'],
-                                rotation_w=panel_data['RotW'],
-                                texture_orientation=panel_data['TextureOrientation']
-                            )
-                            # Обработка элементов контура
-                            print(f"panel_data: {panel_data['ArtPos']}")
-                            contours_data = panel_data.get('Cont', [])
-                            
-                            for contour_data in contours_data:
-                                if contour_data:
-                                    print(f"contour_data: {contour_data}")
-                                    Contour.objects.create(
-                                        type=contour_data['Type'],
-                                        pos1x=contour_data['Pos1x'],
-                                        pos2x=contour_data['Pos2x'],
-                                        pos1y=contour_data['Pos1y'],
-                                        pos2y=contour_data['Pos2y'],
-                                        center_x=contour_data['CenterX'],
-                                        center_y=contour_data['CenterY'],
-                                        radius=contour_data['Radius'],
-                                        start_angle=contour_data['StartAngle'],
-                                        end_angle=contour_data['EndAngle'],
-                                        arc_dir=contour_data['ArcDir'],
-                                        panel=panel,
-                                    )
-                            #print(f"panel: {panel}")
-
-                        #print("Панели успешно добавлены или обновлены.")
-
-                         # Добавляем или обновляем тела выдавливания в проекте
-                        panels_data = json_data.get('Extrusion', [])
-                        #print(f"panels_data: {panels_data}")
-                        for panel_data in panels_data:
-                            #print(f"panel_data: {panel_data}")
-
-                            # Получаем или создаем блок
-                            block, created = Block.objects.get_or_create(
-                                name=panel_data['Owner'],  # Используем имя владельца панели как имя блока
-                                project=obj,
-                                defaults={
-                                    'visibility': True,
-                                    'color': '#FFFFFF',
-                                    'position_x': 0.0,
-                                    'position_y': 0.0,
-                                    'position_z': 0.0,
-                                    'rotation_x': 0.0,
-                                    'rotation_y': 0.0,
-                                    'rotation_z': 0.0,
-                                    'rotation_w': 1.0,
-                                }
-                            )
-                            # Получаем или создаем материал
-                            mat_id = 0
-                            if "MaterialId" in panel_data:
-                                mat_id = panel_data["MaterialId"]
-                            
-                            material_instance, created = Material.objects.get_or_create(article=mat_id, defaults={
-                                'name': panel_data['MaterialName'],
-                                'article': mat_id,  # Добавьте вашу логику для получения артикула
-                                'page_link': '',  # Добавьте вашу логику для получения ссылки на страницу
-                                'texture_link': ''  # Добавьте вашу логику для получения ссылки на текстуру
-                            })
-                            # Добавляем или обновляем панель в блоке
-                            panel = Panel.objects.create(
-                                name=panel_data['Name'],
-                                project=obj,
-                                block=block,
-                                position=panel_data['ArtPos'],
-                                length=panel_data['Length'],
-                                width=panel_data['Width'],
-                                height=panel_data['Thickness'],
-                                position_x=panel_data['PositionX'],
-                                position_y=panel_data['PositionY'],
-                                position_z=panel_data['PositionZ'],
-                                material=material_instance,
-                                rotation_x=panel_data['RotX'],
-                                rotation_y=panel_data['RotY'],
-                                rotation_z=panel_data['RotZ'],
-                                rotation_w=panel_data['RotW'],
-                                texture_orientation=0
-                            )
-                            # Обработка элементов контура
-                            print(f"panel_data: {panel_data['ArtPos']}")
-                            contours_data = panel_data.get('Cont', [])
-                            
-                            for contour_data in contours_data:
-                                if contour_data:
-                                    print(f"contour_data: {contour_data}")
-                                    Contour.objects.create(
-                                        type=contour_data['Type'],
-                                        pos1x=contour_data['Pos1x'],
-                                        pos2x=contour_data['Pos2x'],
-                                        pos1y=contour_data['Pos1y'],
-                                        pos2y=contour_data['Pos2y'],
-                                        center_x=contour_data['CenterX'],
-                                        center_y=contour_data['CenterY'],
-                                        radius=contour_data['Radius'],
-                                        start_angle=contour_data['StartAngle'],
-                                        end_angle=contour_data['EndAngle'],
-                                        arc_dir=contour_data['ArcDir'],
-                                        panel=panel,
-                                    )
-                            #print(f"panel: {panel}")
-
-                        #print("Панели успешно добавлены или обновлены.")
-
+                        import_size(obj,json_data.get('Size',[]))   #Импорт размеров
+                        import_panels(obj,json_data.get('Panel', []))       #Импорт панелей
+                        import_panels(obj,json_data.get('Extrusion', []))       #Импорт тел выдавливания
+                        import_line(obj,json_data.get('Line3D', []))       #Импорт линий
                     else:
                         print("Файл JSON пуст.")
             except json.JSONDecodeError as e:
-                print(f"Ошибка декодирования JSON-файла: {e}")
-           
-                
+                print(f"Ошибка декодирования JSON-файла: {e}")         
         else:
             print("Файл JSON отсутствует.")
     def project_image(self, obj):
@@ -289,6 +118,7 @@ admin.site.register(Project, ProjectAdmin)  # Register ProjectAdmin for the Proj
 #admin.site.register(Block)
 #admin.site.register(Panel)
 #admin.site.register(Contour)
+admin.site.register(Line3D)
 admin.site.register(Size)
 admin.site.register(Material, MaterialAdmin)
 

@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='size',
             name='project',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='myapp.project'),
+            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='myapp.project'),
         ),
     ]
