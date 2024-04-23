@@ -1,13 +1,13 @@
 # myapp/admin.py
 from django.contrib import admin
-from .models import Project, Block, Panel, Contour, Material, Size, Line3D
+from .models import Project, Block, Panel, Contour, Material, Size, Line3D, Fasteners,MaterialType, FastenerType
 from django.urls import reverse
 from django.utils.html import format_html
 import json
 import os
 import shutil  # Импортируем модуль shutil для удаления директорий
 from .forms import MaterialForm
-from .import_json import import_size, import_panels, import_line 
+from .import_json import import_size, import_panels, import_line, import_block 
 
 class ProjectAdmin(admin.ModelAdmin):
     changelist_view_template = 'myapp/project_change_list.html'
@@ -72,6 +72,7 @@ class ProjectAdmin(admin.ModelAdmin):
                         obj.size_x = project_data['Size']['x']
                         obj.size_y = project_data['Size']['y']
                         obj.size_z = project_data['Size']['z']
+                        import_block(obj,json_data.get('Block',[])) #Импорт блоков
                         import_size(obj,json_data.get('Size',[]))   #Импорт размеров
                         import_panels(obj,json_data.get('Panel', []))       #Импорт панелей
                         import_panels(obj,json_data.get('Extrusion', []))       #Импорт тел выдавливания
@@ -115,11 +116,14 @@ class MaterialAdmin(admin.ModelAdmin):
     
 
 admin.site.register(Project, ProjectAdmin)  # Register ProjectAdmin for the Project model
-#admin.site.register(Block)
+admin.site.register(Block)
 #admin.site.register(Panel)
 #admin.site.register(Contour)
 admin.site.register(Line3D)
 admin.site.register(Size)
 admin.site.register(Material, MaterialAdmin)
+admin.site.register(Fasteners)
+admin.site.register(MaterialType)
+admin.site.register(FastenerType)
 
 

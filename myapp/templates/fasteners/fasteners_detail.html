@@ -1,0 +1,132 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<input type="hidden" id="fasteners-data" value="{{ fasteners_json }}">
+    <div class="container-fluid mt-5">
+        <div class="row">
+            <div class="col-md-3">
+                <h1>{{ fasteners.name }}</h1>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name">Имя:</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ fasteners.name }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="fastener_type">Тип:</label>
+                        <select class="form-control" id="fastener_type" name="fastener_type">
+                            {% for type in types %}
+                                <option value="{{ type.id }}" {% if type.id == fasteners.fastener_type.id %} selected {% endif %}>{{ type.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if fasteners.image %}
+                    {% with image_url=fasteners.image.url %}
+                        <img id="image-preview" src="{{ image_url }}" alt="Preview Image" style="max-width: 200px; max-height: 200px;">
+                    {% endwith %}
+                {% else %}
+                    {% with image_url='' %}
+                        <img id="image-preview" src="{{ image_url }}" alt="Preview Image" style="max-width: 200px; max-height: 200px;">
+                    {% endwith %}
+                {% endif %}
+                    <div class="form-group">
+                        <label for="image">Изображение:</label>
+                        <input type="file" class="form-control-file" id="image" name="image" onchange="previewImage(this)">
+                    </div>
+                    
+                    
+                    <div class="form-group">
+                        <label for="description">Описание:</label>
+                        <textarea class="form-control" id="description" name="description" rows="4">{{ fasteners.description }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="position_x">Позиция x:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="position_x" name="position_x" value="{{ fasteners.position_x }}" onkeypress="handleKeyPress(event, 'x');">
+                            <div class="input-group-append">
+                               
+                                <button class="btn btn-outline-secondary" type="button" onclick="changePosition('x', -1)">-</button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="changePosition('x', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="position_y">Позиция y:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="position_y" name="position_y" value="{{ fasteners.position_y }}" onkeypress="handleKeyPress(event, 'y');">
+                            <div class="input-group-append">
+                               
+                                <button class="btn btn-outline-secondary" type="button" onclick="changePosition('y', -1)">-</button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="changePosition('y', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="position_z">Позиция z:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="position_z" name="position_z" value="{{ fasteners.position_z }}" onkeypress="handleKeyPress(event, 'z');">
+                            <div class="input-group-append">
+                              
+                                <button class="btn btn-outline-secondary" type="button" onclick="changePosition('z', -1)">-</button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="changePosition('z', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rot_x">Поворот x:</label>
+                        <input type="text" class="form-control" id="rot_x" name="rot_x" value="{{ fasteners.rot_x }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="rot_y">Поворот y:</label>
+                        <input type="text" class="form-control" id="rot_y" name="rot_y" value="{{ fasteners.rot_y }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="rot_z">Поворот z:</label>
+                        <input type="text" class="form-control" id="rot_z" name="rot_z" value="{{ fasteners.rot_z }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="rot_w">Поворот w:</label>
+                        <input type="text" class="form-control" id="rot_w" name="rot_w" value="{{ fasteners.rot_w }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="material">Материал:</label>
+                        <select class="form-control" id="material" name="material">
+                            {% for material in materials %}
+                                <option value="{{ material.id }}" {% if material.id == fasteners.material %} selected {% endif %}>{{ material.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="page_link">Ссылка на сайт поставщика:</label>
+                        <input type="text" class="form-control" id="page_link" name="page_link" value="{{ fasteners.page_link }}">
+                    </div>
+                    
+                    
+
+                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                </form>
+            </div>
+            <div class="col-md-9">
+                <canvas id="fasteners-canvas" class="w-100" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "/static/js/three/three.module.js",
+            "three/addons/": "/static/js/three/jsm/"
+        }
+    }
+</script>
+<script type="module" src="{% static 'js/fastener.js' %}"></script>
+{% endblock %}

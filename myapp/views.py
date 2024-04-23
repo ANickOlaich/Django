@@ -1,16 +1,58 @@
 from django.views.generic.edit import FormView
 from rest_framework import generics
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Project,Panel,Material,Size, Line3D
+from .models import Project,Panel,Material,Size, Line3D, Block
 from django.contrib import messages
 from .forms import JSONFileUploadForm, ImageForm
 from django.urls import reverse
-from .serializers import PanelSerializer,MaterialSerializer, ProjectSerializer, SizeSerializer, Line3DSerializer
+from .serializers import PanelSerializer,MaterialSerializer, ProjectSerializer, SizeSerializer, Line3DSerializer, BlockSerializer
 from django.http import Http404
 from django.http import JsonResponse
 import base64,os,json
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LogoutView
+from django.http import HttpResponseRedirect
+from .forms import UserRegistrationForm
+
+@login_required
+def user_profile(request):
+    return render(request, 'user_profile.html', {'user': request.user})
 
 
+def register(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+def upload_material_image(request):
+    print('---------------------------------Material Image')
+    if request.method == 'POST':
+        # Получаем изображение из запроса
+        image_data = request.FILES.get('image')
+        material_id = request.POST.get('id')
+        print(image_data)
+        print(material_id)
+        
+        # Здесь может быть ваша логика обработки изображения и материала
+        
+        # Возвращаем успешный ответ
+        return JsonResponse({'message': 'Image uploaded successfully'})
+    else:
+        # Если метод запроса не POST, возвращаем ошибку
+        return JsonResponse({'error': 'Only POST requests are allowed'}, status=400)
+
+class CustomLogoutView(LogoutView):
+    next_page = '/'  # страница, на которую перенаправляется после выхода
+
+    def get(self, request, *args, **kwargs):
+        self.logout(request)
+        return HttpResponseRedirect(self.get_next_page())
 
 class PanelList(generics.ListAPIView):
     serializer_class = PanelSerializer
@@ -130,7 +172,7 @@ def project_view(request, project_id):
 
 def project_edit(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    return render(request, 'myapp/project_edit.html', {'project': project})
+    return render(request, 'myapp/project_edit2.html', {'project': project})
     return render(request, 'myapp/project_detail.html', {'project': project})
 
 def project_list(request):
@@ -177,6 +219,13 @@ class SizeList(generics.ListAPIView):
     def get_queryset(self):
         project_id = self.kwargs['project_id']
         return Size.objects.filter(project__id=project_id)
+
+class BlockList(generics.ListAPIView):
+    serializer_class = BlockSerializer
+
+    def get_queryset(self):
+        project_id = self.kwargs['project_id']
+        return Block.objects.filter(project__id=project_id)
 
 class Line3DList(generics.ListAPIView):
     serializer_class = Line3DSerializer

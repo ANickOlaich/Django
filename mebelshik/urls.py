@@ -24,6 +24,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('myapp/', include('myapp.urls')),  # Проверьте пространство имен
     path('projects/', include('myapp.url_projects')),  # Убран префикс 'myapp'
+    path('fasteners/', include('myapp.url_fasteners')),  # Убран префикс 'myapp'
+    path('materials/', include('myapp.url_materials')),  # Убран префикс 'myapp'
+    
 ]
 
 # Добавляем обслуживание статических и медиа файлов в режиме разработки

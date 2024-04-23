@@ -1,0 +1,212 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ project.name }}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+    <meta name="description" content="{{ project.description}}"> 
+   <!-- Open Graph Generated: a.pr-cy.ru -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ project.name }}">
+    <meta property="og:description" content="{{ project.description }}">
+    <meta property="og:image" content="{% static project.image %}">
+    <meta property="og:site_name" content="Мебельщик">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offcanvasTopLabel">Offcanvas top</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      ...
+    </div>
+  </div>
+  
+<div id="panel-info" data-project-id="{{ project.id }}"></div>
+
+<!-- Спиннер -->
+<div id="spinner" class="lds-ring"><div></div><div></div><div></div><div></div></div>
+
+<div class="r_panel">
+  <div class="container">
+      <div class="row">
+        <div id="info"></div>
+      </div>
+  </div>
+</div>
+
+<div class="l_panel">
+    <div class="container">
+        <div class="row">
+            <div class="accordion" id="accordionEdit">
+                <div class="card">
+                  <div class="card-header" id="headingDescription">
+                    <h2 class="mb-0">
+                      <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseDescription" aria-expanded="true" aria-controls="collapseDescription">
+                        Описание
+                      </button>
+                    </h2>
+                  </div>
+              
+                  <div id="collapseDescription" class="collapse" aria-labelledby="headingDescription" data-parent="#accordionEdit">
+                    <div class="card-body">
+                      <div class="mb-3">
+                          <button id="facadeButton" class="btn btn-primary btn-block" onclick="photoButtonClick(this)">Фото</button>
+                      </div>
+                      <div class="mb-3">
+                          <label for="projectName" class="form-label">Имя проекта</label> 
+                          <input type="text" class="form-control" id="projectName" name="projectName" value="{{ project.name }}">
+                      </div>
+                      <div class="mb-3">
+                          <label for="projectDescription" class="form-label">Описание проекта</label> 
+                          <textarea class="form-control" id="projectDescription" name="projectDescription" aria-label="With textarea">{{ project.description }}</textarea>
+                      </div>
+                      <div class="mb-3">
+                          <select class="form-select form-select-lg mb-3" aria-label="Large select example" id="projectStatus">
+                              <option value="Новый" {% if project.status == "Новый" %}selected{% endif %}>Новый</option>
+                              <option value="В работе" {% if project.status == "В работе" %}selected{% endif %}>В работе</option>
+                              <option value="Завершен" {% if project.status == "Завершен" %}selected{% endif %}>Завершен</option>
+                          </select>                        
+                      </div>
+                      <div class="mb-3">
+                          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" {% if project.visibility %}checked{% endif %}>
+                          <label class="form-check-label" for="flexCheckDefault">
+                              На главной
+                          </label>
+                      </div>
+                      <button id="updateProject" class="btn btn-primary btn-block" onclick="updateProject(this)">Обновить</button>
+                  </div>
+                  
+                  
+                  
+                  </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" id="headingEnvironment">
+                      <h2 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseEnvironment" aria-expanded="false" aria-controls="collapseEnvironment">
+                          Окружение
+                        </button>
+                      </h2>
+                    </div>
+                
+                    <div id="collapseEnvironment" class="collapse" aria-labelledby="headingEnvironment" data-parent="#accordionEdit">
+                      <div class="card-body">
+                        
+                      </div>
+                    </div>
+                  </div>
+                
+                  <div class="card">
+                    <div class="card-header" id="headingWalls">
+                      <h2 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseWalls" aria-expanded="false" aria-controls="collapseWalls">
+                          Стены
+                        </button>
+                      </h2>
+                    </div>
+                
+                    <div id="collapseWalls" class="collapse" aria-labelledby="headingWalls" data-parent="#accordionEdit">
+                      <div class="card-body">
+                        <div class="input-group">
+                          <input type="file" class="form-control" id="walls" aria-describedby="wallsAddon" aria-label="Upload">
+                          <button class="btn btn-outline-secondary" type="button" id="wallsAddon" onclick="uploadWalls(this)">Сохранить</button>
+                        </div>                  
+                        
+                      </div>
+                    </div>
+                  </div>
+
+                <div class="card">
+                  <div class="card-header" id="headingMaterials">
+                    <h2 class="mb-0">
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Материалы
+                      </button>
+                    </h2>
+                  </div>
+                  <div id="collapseTwo" class="collapse" aria-labelledby="headingMaterials" data-parent="#accordionEdit">
+                    <div class="card-body">
+                      
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" id="headingBlocks">
+                      <h2 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseBlocks" aria-expanded="false" aria-controls="collapseBlocks">
+                          Блоки
+                        </button>
+                      </h2>
+                    </div>
+                    <div id="collapseBlocks" class="collapse" aria-labelledby="headingBlocks" data-parent="#accordionEdit">
+                      <div class="card-body">
+                        <div id="blocks"></div>
+                      </div>
+                    </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="headingThree">
+                    <h2 class="mb-0">
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Размеры
+                      </button>
+                    </h2>
+                  </div>
+                  <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionEdit">
+                    <div class="card-body">
+                     <div id="sizes"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        </div>
+    </div> 
+
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <i class="fas fa-door-open" onclick="seeButtonClick('Фасады', this)"></i>
+            </div>
+            <div class="col">
+                <i class="fas fa-regular fa-up-right-and-down-left-from-center" onclick="seeButtonClick('Размеры', this)"></i>
+            </div>
+            <div class="col">
+                <i class="fas fa-eye" onclick="seeButtonClick('Вид', this)"></i>
+            </div>
+        </div>
+    </div>  
+</footer>
+
+<!-- Скрипты и прочий контент -->
+<script>
+  function changeIconBackground(icon) {
+      icon.classList.toggle('selected'); // Добавляем или удаляем класс 'selected' при клике
+  }
+</script>
+
+
+    <script src="https://kit.fontawesome.com/47e124438e.js" crossorigin="anonymous"></script>  
+   
+  <script src="https://cdn.jsdelivr.net/npm/three@0.122.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.122.0/examples/js/controls/OrbitControls.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.122.0/examples/js/loaders/STLLoader"></script>
+  import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+   <!-- Подключаем библиотеку CreateJS -->
+   <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+  
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <script src="{% static 'js/view.js' %}"></script>
+  
+</body>
+</html>

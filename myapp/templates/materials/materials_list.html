@@ -1,0 +1,71 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-4">
+                <h3>
+                    Список материалов
+                </h3>
+            </div>
+            <div class="col-md-4">
+                <ul>
+                    <li class="list-item">
+                        {{types.length}}
+                    </li>
+                    <li class="list-item">
+                        Consectetur adipiscing elit
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                 
+                <a href="{% url 'material_edit' 0 %}" class="btn btn-primary">Додати</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="accordion" id="accordion">
+    {% for type in types %}
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{type.pk}}" aria-expanded="false" aria-controls="collapse{{type.pk}}">
+                {{type.name}}
+            </button>
+        </h2>
+        <div id="collapse{{type.pk}}" class="accordion-collapse collapse" data-bs-parent="#accordion">
+            <div class="accordion-body">
+                <div class="row row-cols-1 row-cols-md-6 g-4">
+                    {% for material in materials %}
+                        {% if material.material_type == type %}
+                        <div class="col">
+                            <div class="card h-100">
+                                {% if material.texture_link %}
+                                <img src="{{ material.image.url }}" class="card-img-top" alt="...">
+                                {% else %}
+                                <!-- Вместо изображения можете использовать замену или просто оставить пустое место -->
+                                <div class="card-img-top placeholder-image"></div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ material.name }}</h5>
+                                    <a href="{% url 'material_edit' material.pk %}" class="btn btn-primary">Редагувати</a>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {%endfor%}
+</div>
+
+   
+
+
+{% endblock %}

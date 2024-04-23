@@ -1,0 +1,29 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <h1>Parser</h1>
+  <form method="post" action="{% url 'parser' %}">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="url" class="form-label">Ссылка на страницу:</label>
+      <input type="text" class="form-control" id="url" name="url">
+    </div>
+    <button type="submit" class="btn btn-primary">Отправить</button>
+  </form>
+  {% if article %}
+  <div class="mt-4">
+    <h2>Извлеченный элемент:</h2>
+    <p>ID: {{ article.id }}</p>
+    <p>Name: {{ article.name }}</p>
+    <!-- Добавьте другие поля по необходимости -->
+  </div>
+  {% endif %}
+  {% if error %}
+  <div class="mt-4 text-danger">
+    <p>{{ error }}</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

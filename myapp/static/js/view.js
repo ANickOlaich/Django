@@ -1,3 +1,8 @@
+import * as THREE from './three/three.module.js';
+import { OrbitControls } from './three/jsm/OrbitControls.js';
+import { STLLoader } from './three/jsm/STLLoader.js';
+
+
 // Функция для извлечения значения параметра Mode из URL
 function getModeFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -27,6 +32,8 @@ function getModeFromUrl() {
   });
   
   var materials = []
+  // Создаем Raycaster
+const raycaster = new THREE.Raycaster();
   
   /*var layer1 = new THREE.Layers(); //Все остальное, кром -
   var layer2 = new THREE.Layers();  //Фасады
@@ -34,8 +41,10 @@ function getModeFromUrl() {
   layer1.set(1); // Устанавливаем первый бит маски для первого слоя
   layer2.set(2); // Устанавливаем второй бит маски для второго слоя
   */
-  
+  // Объект для хранения начального состояния группы при анимации
+  const initialGroupState = {};
   // Создаем сцену
+  
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0xeeeeee); // Цвет фона
   
@@ -48,20 +57,39 @@ function getModeFromUrl() {
   scene.add(arrowsGroup);
   scene.add(line3dGroup);
   
-  // Создаем камеру
-  var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
+  
   
   // Создаем рендерер
-  var renderer = new THREE.WebGLRenderer();
+  var renderer,camera;
+  const canvas = document.getElementById('threeCanvas');
+  //console.log(canvas);
+  if(canvas){
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, preserveDrawingBuffer: true });
+    renderer.canvas = canvas;
+    renderer.antialias = true;
+    renderer.preserveDrawingBuffer = true;
+    renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+     
+  // Создаем камеру
+  camera = new THREE.PerspectiveCamera(75, canvas.offsetWidth / canvas.offsetHeight, 0.01, 100);
+  }else{
+     // Устанавливаем стили для рендерера
+  renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = true; // Включаем тени
-  document.body.appendChild(renderer.domElement);
-  
-  // Устанавливаем стили для рендерера
   renderer.domElement.style.position = 'absolute';
   renderer.domElement.style.top = '0';
   renderer.domElement.style.left = '0';
   renderer.domElement.style.overflow = 'hidden';
+  document.body.appendChild(renderer.domElement);
+  // Создаем камеру
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
+  }
+  
+  
+  renderer.shadowMap.enabled = true; // Включаем тени
+ 
+  
+ 
   
   // LIGHTS
   
@@ -69,7 +97,7 @@ function getModeFromUrl() {
                   hemiLight.position.set( 0, 20, 0 );
                   scene.add( hemiLight );
   
-                  const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+  const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
                   dirLight.position.set( 10, 10, 10 );
                   dirLight.castShadow = true;
                   dirLight.shadow.camera.top = 2;
@@ -87,11 +115,11 @@ function getModeFromUrl() {
                   mesh.receiveShadow = true;
                   scene.add( mesh );
   
-          const grid = new THREE.GridHelper( 20, 20, 0xc1c1c1, 0x8d8d8d );
+  const grid = new THREE.GridHelper( 20, 20, 0xc1c1c1, 0x8d8d8d );
                   scene.add( grid );
   
   // Создаем свободную камеру с использованием OrbitControls
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  const controls = new OrbitControls(camera, renderer.domElement);
           controls.enableDamping = true; // Включаем затухание (инерцию)
           controls.dampingFactor = 0.1; // Настраиваем коэффициент затухания
   
@@ -124,8 +152,154 @@ function getModeFromUrl() {
 
   }
   
+//--------------------------Блоки----------------------
+/*
+function addBlocksToScene(blocksData) {
+
+  blocksData.forEach(blockData => {
+      const blockGroup = new THREE.Group();
+      blockGroup.name = blockData.uid;
+      
+      console.log(blockData);
+      if(blockData.anim_type!=0){
+        const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1); // Пример геометрии блока
+        const material = new THREE.MeshBasicMaterial({ 
+          color: 0x008000,
+          transparent:true,
+          opacity:0.5,
+         }); // Пример материала блока
+        const blockMesh = new THREE.Mesh(geometry, material);
+       
+        blockGroup.add(blockMesh);
+
+      }
+     
+
+       // Создаем кватернион на основе данных о повороте
+      const quaternion = new THREE.Quaternion(
+        blockData.rotation_x,
+        blockData.rotation_y,
+        blockData.rotation_z,
+        blockData.rotation_w
+    );
+    
+
+    // Нормализуем кватернион
+    quaternion.normalize();
+
+    // Создаем вектор позиции на основе данных о позиции
+    const position = new THREE.Vector3(blockData.position_x/1000, blockData.position_y/1000, blockData.position_z/1000);
+
+    // Применяем позицию и поворот к мешу
+    blockGroup.position.copy(position);
+    blockGroup.quaternion.copy(quaternion);
+
+      
+
+      
+      // Проверьте, есть ли у блока родитель, и добавьте его в соответствующую группу родителя
+      if (blockData.parent!='1') {
+          const parentGroup = scene.getObjectByName(blockData.parent);
+         
+          if (parentGroup) {
+              parentGroup.add(blockGroup);
+          } else {
+              console.error(`Parent group "${blockData.parent}" not found for block "${blockData.name}"`);
+          }
+      } else {
+        
+          scene.add(blockGroup); // Если блок верхнего уровня, добавьте его напрямую в сцену
+      }
+  });
+}
+*/
+
+// Функция для прохождения по всем элементам дерева
+function traverseTree(tree, callback) {
+  // Проходим по каждому узлу дерева
+  tree.forEach(node => {
+    // Вызываем обратный вызов для текущего узла
+    callback(node);
+    
+    // Если у узла есть дочерние узлы, рекурсивно вызываем эту же функцию для каждого из них
+    if (node.children) {
+      traverseTree(node.children, callback);
+    }
+  });
+}
+
+function createBlockTree(objects) {
+  const tree = [];
+  const map = {};
+  
+  // Проход по массиву объектов для создания карты uid-объект
+  objects.forEach(obj => {
+    map[obj.uid] = { ...obj, children: [], parent: null, group: null }; // Добавляем поле parent и инициализируем его как null
+  });
+  
+  // Проход по массиву объектов для связывания родителей и детей
+  objects.forEach(obj => {
+    const parent = map[obj.parent];
+    if (parent) {
+      const child = map[obj.uid];
+      child.parent = parent; // Устанавливаем ссылку на родителя
+      parent.children.push(child);
+    } else {
+      tree.push(map[obj.uid]); // Добавляем узел в дерево, если у него нет родителя
+    }
+  });
+  
+  return tree;
+}
+function findNodeByUid(tree, uid) {
+  //console.log("Checking node:", uid);
+  
+  for (const treeElem of tree) {
+    // Проверяем, если текущий узел имеет нужный uid, возвращаем его
+    if (treeElem.uid === uid) {
+      //console.log("Found node with uid:", uid);
+      return treeElem;
+    }
+    
+    // Если у узла есть дочерние узлы, рекурсивно ищем среди них
+    if (treeElem.children) {
+      const foundNode = findNodeByUid(treeElem.children, uid);
+      if (foundNode) {
+        return foundNode;
+      }
+    }
+  }
+  
+  // Если узел не найден, возвращаем null
+  return null;
+}
+// Функция для добавления объектов к узлам дерева на основе свойства block
+function attachElementsToTree(tree, elements) {
+  // Проход по массиву блоков
+  elements.forEach(elem => {
+    // Находим родительский узел дерева по значению id
+    
+    const parentNode = findNodeByUid(tree, elem.block);
+    if (parentNode) {
+      // Добавляем блок к родительскому узлу
+      if (!parentNode.panels) {
+        parentNode.panels = [];
+      }
+      parentNode.panels.push(elem);
+    } else {
+      console.error(`Родительский узел с id ${elem.block} не найден.`);
+    }
+  });
+}
+
+
+
+
+
+
   //------------------------Стрелки------------------------
   function createArrows(size){
+    //console.log(size);
     var d=size.width/5000
     const points =[];
           points.push (new THREE.Vector3(0,d,0))
@@ -176,7 +350,7 @@ function getModeFromUrl() {
     textMesh.position.x = size.length/1000/2;
     textMesh.position.y = d*5;
   
-    arrowGroup = new THREE.Group();
+    const arrowGroup = new THREE.Group();
     arrowGroup.add(textMesh);
     arrowGroup.add(arrow)
       
@@ -198,7 +372,14 @@ function getModeFromUrl() {
     arrowGroup.quaternion.copy(quaternion);
   
     // Добавляем стрелку и текст в группу (arrowsGroup)
-    arrowsGroup.add(arrowGroup);
+   // arrowsGroup.add(arrowGroup);
+   const parentGroup = scene.getObjectByName(size.block);
+   if(parentGroup){
+    parentGroup.add(arrowGroup);
+   }else{
+    scene.add(arrowGroup)
+   }
+   
   }
   
   //------------------------------------------------------------------
@@ -212,6 +393,19 @@ function getModeFromUrl() {
       throw new Error(`Ошибка при получении данных о проекте: ${error}`);
     }
   }
+
+  async function fetchBlockData(project_id) {
+    try {
+      const response = await fetch(`/myapp/api/block/${project_id}/`);
+        const data = await response.json();
+        //console.log(data);
+        return data;
+  
+    } catch (error) {
+      throw new Error(`Ошибка при получении данных о блоках: ${error}`);
+    }
+  }
+
   // Асинхронная функция для получения данных о панелях с сервера
   async function fetchPanelsData(project_id) {
       //console.log('Получаю даннные о панелях');
@@ -264,12 +458,12 @@ function getModeFromUrl() {
     }
     
     // Функция для создания панелей на основе данных
-    function createPanels(panelsData, materialsData, scene) {
+    function createPanels(panelsData, materialsData, scene, Group) {
       //console.log('Создаю панели');
       panelsData.forEach(panelData => {
         const material = materialsData.find(material => material.id === panelData.material);
         // Используй полученные данные для создания панели
-        createPanel(panelData, material, scene);
+        createPanel(panelData, material, scene, Group);
         // Создайте подписи (если необходимо)
         // createLabel(panelData, scene);
       });
@@ -298,15 +492,48 @@ function getModeFromUrl() {
         SpinnerOn('Загрузка...');
         const projectData = await fetchProjectInfo(project_id);
         //console.log(projectData);
-        addOverlayText(projectData.name,10);
+        //addOverlayText(projectData.name,10);
         camera.position.x = projectData.size_x/2000;
         camera.position.y = projectData.size_y/2000;
         camera.position.z = projectData.size_z*2/1000;
         camera.lookAt( projectData.size_x/2000, projectData.size_y/2000, 0 );
         controls.update();
+        // Получаем данные о блоках
+        const blockData = await fetchBlockData(project_id);
+        // Создание дерева
+        const BlockTree = createBlockTree(blockData);
+        console.log(BlockTree);
+        // Новый объект для добавления
+const newNode = {
+  id: 1,
+  uid: 1,
+  name: "Сцена",
+  anim_type: 0,
+  children: [],
+  color: "#FFFFFF",
+  depth: 0,
+  furn_type: "",
+  group: null,
+  length: 0,
+  parent: null,
+  position_x: 0,
+  position_y: 0,
+  position_z: 0,
+  project: project_id,
+  rotation_w: 1,
+  rotation_x: 0,
+  rotation_y: 0,
+  rotation_z: 0,
+  visibility: true,
+  width:0
+};
+
+// Добавляем новый объект в массив
+BlockTree.push(newNode);
         // Получаем данные о панелях
         const panelsData = await fetchPanelsData(project_id);
-        //console.log(panelsData);
+        attachElementsToTree(BlockTree, panelsData)
+           
         // Находим уникальные материалы
         const uniqueMaterialsIds = await extractUniqueMaterials(panelsData);
         ////console.log(uniqueMaterialsIds);
@@ -320,14 +547,82 @@ function getModeFromUrl() {
           createArrows(size);
         })
         const linesData = await fetchLinesData(project_id);
-        console.log(linesData);
+       
         linesData.forEach(line=>{
           createLine(line);
         })
-        //console.log(sizesData);
+         // Создаем группы
+         traverseTree(BlockTree, (node) => {
+          const group = new THREE.Group();
+          const quaternion = new THREE.Quaternion(
+            node.rotation_x,
+            node.rotation_y,
+            node.rotation_z,
+            node.rotation_w
+        );
+        quaternion.normalize();
+        const position = new THREE.Vector3(node.position_x / 1000, node.position_y / 1000, node.position_z / 1000);
+        group.position.copy(position);
+        group.quaternion.copy(quaternion);
         
-        // Создаем панели на основе данных
-        createPanels(panelsData, materialsData, scene);
+
+          node.group=group;
+          if(node.parent==null){
+            scene.add(group)
+          }else{
+            node.parent.group.add(group);
+          }
+        });
+      
+       
+       // Устанавливаем анимацию для дочерних блоков
+      function setAnimChild(children,node){
+        
+        children.forEach(child=>{
+          if(!child.animBlock){
+            child.anim_type = node.anim_type;
+            child.animBlock = node;
+          }
+         
+          if (child.children){
+            setAnimChild(child.children,node);
+          }
+        })
+      }
+      traverseTree(BlockTree,(node)=>{
+        if (node.anim_type!==0){
+         
+          if(!node.animBlock){
+            node.animBlock=node;
+          }
+          
+          if (node.children){
+            setAnimChild(node.children,node)
+          }
+        }
+      })  
+      //Устанавливаем анимацию для панелей
+        traverseTree(BlockTree,(node)=>{
+          if (node.anim_type!==0){
+            if (node.panels) {
+              node.panels.forEach(panel=>{
+                panel.animBlock = node.animBlock
+              })
+            }
+          }
+        })
+
+        //Добавляем панели
+        traverseTree(BlockTree, (node) => {
+         
+          if (node.panels){
+            createPanels(node.panels, materialsData, scene, node.group);
+          }
+        });
+        console.log(BlockTree);
+
+        creatFasteners();
+       
       } catch (error) {
         console.error(error);
       } finally {
@@ -336,12 +631,49 @@ function getModeFromUrl() {
       }
     }
     
-    
+    function creatFasteners(){
+      const material = new THREE.MeshPhysicalMaterial({
+          color: 0x111111,
+          //metalness: 0.15,
+          roughness: 0.5,
+          opacity: 1.0,
+          transparent: false,
+          //transmission: 0.99,
+          //clearcoat: 1.0,
+          //clearcoatRoughness: 0.25,
+      });
+  
+      const loader = new STLLoader();
+      loader.load(
+          'http://localhost:8000/media/fasteners/Ножка кухонная 100мм.stl',
+          function (geometry) {
+              // Создайте новую матрицу масштабирования
+              const scaleFactor = 1 / 1000; // Уменьшить размер в 1000 раз
+              const scaleMatrix = new THREE.Matrix4().makeScale(scaleFactor, scaleFactor, scaleFactor);
+  
+              // Примените матрицу масштабирования к геометрии
+              geometry.applyMatrix4(scaleMatrix);
+  
+              // Создайте Mesh с преобразованной геометрией
+              const mesh = new THREE.Mesh(geometry, material);
+  
+              // Добавьте Mesh на сцену
+              scene.add(mesh);
+          },
+          (xhr) => {
+              console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
+          },
+          (error) => {
+              console.log(error);
+          }
+      );
+  }
   
   //------------------------------------------------------------------
   
   // Функция для создания панели на основе данных
-  function createPanel(panelData, materialData, scene) {
+  function createPanel(panelData, materialData, scene, Group) {
+    
     const SCALE=1000;
       // Получаем контуры панели
       var lines = panelData.contours;
@@ -380,7 +712,7 @@ function getModeFromUrl() {
     });
   
     var texture=null;
-  
+    console.log(materialData.texture_link);
     if (materialData.texture_link){
       // Загружаем текстуру для панели из данных о материале
       const textureLoader = new THREE.TextureLoader();
@@ -412,10 +744,11 @@ function getModeFromUrl() {
   
       // Создаем геометрию выдавливания
       var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-  
+     
       // Создаем материал с использованием данных о материале
       var material = new THREE.MeshPhysicalMaterial({
           color: materialData.color,
+          transmission: materialData.transmission,
           opacity:0.5,
           map: texture,
           roughness: materialData.roughness,
@@ -432,6 +765,8 @@ function getModeFromUrl() {
       mesh.originalMaterial = material;
       mesh.castShadow = true; // Разрешаем мешу бросать тень
       mesh.receiveShadow = true;
+
+      mesh.userData = panelData;
       // Создаем кватернион на основе данных о повороте
       const quaternion = new THREE.Quaternion(
           panelData.rotation_x,
@@ -439,7 +774,7 @@ function getModeFromUrl() {
           panelData.rotation_z,
           panelData.rotation_w
       );
-  
+        
       // Нормализуем кватернион
       quaternion.normalize();
   
@@ -448,18 +783,7 @@ function getModeFromUrl() {
   
       // Применяем позицию и поворот к мешу
       mesh.position.copy(position);
-      mesh.quaternion.copy(quaternion);
-      
-      const name = panelData.name.toLowerCase();
-  
-  if (name.includes('фасад')) {
-    fasads.add(mesh);
-      //console.log('The name contains the word "фасад"');
-  } else {
-    scene.add(mesh);
-  }
-     
-      
+      mesh.quaternion.copy(quaternion); 
   
       // Создаем геометрию для рёбер
       const edgesGeometry = new THREE.EdgesGeometry(geometry);
@@ -472,12 +796,20 @@ function getModeFromUrl() {
       edges.position.copy(position);
       edges.quaternion.copy(quaternion);
   
-  // Добавляем объект LineSegments в сцену
-  frameGroup.add(edges);
+      panelData.mesh = mesh;
+      panelData.edge = edges;
+  
+  Group.add(mesh);
+  Group.add(edges);
+  //console.log(blockData);
+
+ 
+  
   }
   // Функция для добавления текста поверх сцены
   function addOverlayText(text, top ) {
     // Создаем div элемент для текста
+    
     var textDiv = document.createElement('div');
     textDiv.style.position = 'absolute';
     textDiv.style.width = '100px';
@@ -575,7 +907,7 @@ function getModeFromUrl() {
    
     function seeButtonClick(option, icon) {
         // Проверяем текущий класс кнопки
-        console.log(icon.classList);
+        //console.log(icon.classList);
         var isView = true;
         icon.classList.toggle('selected'); // Добавляем или удаляем класс 'selected' при клике
         if (icon.classList.contains('selected')){
@@ -616,13 +948,13 @@ function getModeFromUrl() {
   // Создаем анимацию
   var animate = function () {
       requestAnimationFrame(animate);
-  
+      
       // Обновляем контроллер
       controls.update();
   
       //renderer.clear();
     
-  
+      
       // Рендерим сцену
       renderer.render(scene, camera);
      
@@ -631,3 +963,150 @@ function getModeFromUrl() {
   // Вызываем анимацию
   animate();
   
+  function onClick(event) {
+    // Получаем координаты клика мыши
+    const mouse = new THREE.Vector2(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+    );
+  
+    // Обновляем позицию луча в соответствии с координатами мыши
+    raycaster.setFromCamera(mouse, camera);
+  
+    // Пересекаем луч с объектами на сцене
+    const intersects = raycaster.intersectObjects(scene.children, true);
+  
+    // Проверяем, есть ли пересечения
+    if (intersects.length > 0) {
+        // Ищем первый объект с типом Mesh
+        let intersectedMesh = null;
+        for (const intersect of intersects) {
+            if (intersect.object.type === 'Mesh') {
+                intersectedMesh = intersect.object;
+                break;
+            }
+        }
+  
+        // Если найден объект с типом Mesh, проверяем его userData
+        if (intersectedMesh !== null) {
+            const userData = intersectedMesh.userData;
+            console.log(userData);
+            if (userData && userData.animBlock) {
+                // Выполняем функцию animateBlock
+                animateBlock(userData.animBlock);
+            } else {
+                console.log('Объект Mesh не содержит animBlock в своем userData.');
+            }
+        } else {
+            console.log('Пересечений с объектами Mesh не найдено.');
+        }
+    }
+  }
+  
+  function animateBlock(Block) {
+      const group = Block.group; 
+      console.log(Block);
+      // Сохраняем начальное состояние группы перед анимацией
+      if (!initialGroupState[group.uuid]) {
+           initialGroupState[group.uuid] = {
+               rotationY: group.rotation.y,
+               rotationX: group.rotation.x,
+               positionZ: group.position.z,
+               positionX: group.position.x
+           };
+       }
+
+      
+    
+     
+     if (Block.anim_type == 2) {//-----------------Фасад петли слева
+
+               const initialRotationY = initialGroupState[group.uuid].rotationY;
+               let targetRotationY = initialRotationY - Math.PI / 3;
+
+               // Проверяем, была ли группа уже повернута, если да - возвращаем в исходное положение
+               if (group.rotation.y !== initialRotationY) {
+                   targetRotationY = initialRotationY;
+               }
+
+               // Анимация поворота на угол Math.PI / 8 вокруг оси Y
+               createjs.Tween.get(group.rotation)
+                   .to({ y: targetRotationY }, 500);
+      } else if (Block.anim_type == 3) {//------------------Фасад петли справа
+                const initialRotationY = initialGroupState[group.uuid].rotationY;
+                let targetRotationY = initialRotationY + Math.PI / 3;
+
+                // Проверяем, была ли группа уже повернута, если да - возвращаем в исходное положение
+                if (group.rotation.y !== initialRotationY) {
+                    targetRotationY = initialRotationY;
+                }
+               // Получаем центр группы
+const center = new THREE.Vector3();
+const boundingBox = new THREE.Box3().setFromObject(group);
+boundingBox.getCenter(center);
+
+// Устанавливаем отрицательный масштаб для отражения по оси X через центр
+group.scale.x *= -1;
+
+// Смещаем группу обратно на ее исходное положение по оси X
+group.position.x = -center.x;
+              
+
+                
+                // Анимация поворота на угол Math.PI / 8 вокруг оси Y
+                createjs.Tween.get(group.rotation)
+                    .to({ y: targetRotationY }, 500);
+                
+      }else if (Block.anim_type == 5) {//------------------Фасад петли сверху
+                const initialRotationX = initialGroupState[group.uuid].rotationX;
+                let targetRotationX = initialRotationX + Math.PI / 3;
+
+                // Проверяем, была ли группа уже повернута, если да - возвращаем в исходное положение
+                if (group.rotation.x !== initialRotationX) {
+                    targetRotationX = initialRotationX;
+                }
+
+                // Анимация поворота на угол Math.PI / 8 вокруг оси Y
+                createjs.Tween.get(group.rotation)
+                    .to({ x: targetRotationX }, 500);
+                
+      }else if (Block.anim_type == 6) {       //---------------------Дверь купе левая
+                const initialPositionX = initialGroupState[group.uuid].positionX;
+                let targetPositionX = initialPositionX + (Block.length-35)/1000;
+
+                // Проверяем, была ли группа уже сдвинута, если да - возвращаем в исходное положение
+                if (group.position.x !== initialPositionX) {
+                    targetPositionX = initialPositionX;
+                }
+
+                // Создаем анимацию сдвига с использованием TweenJS из CreateJS
+                createjs.Tween.get(group.position)
+                    .to({ x: targetPositionX }, 500);
+      }else if (Block.anim_type == 7) {       //---------------------Дверь купе правая
+                const initialPositionX = initialGroupState[group.uuid].positionX;
+                let targetPositionX = initialPositionX -  (Block.length-35)/1000;
+
+                // Проверяем, была ли группа уже сдвинута, если да - возвращаем в исходное положение
+                if (group.position.x !== initialPositionX) {
+                    targetPositionX = initialPositionX;
+                }
+
+                // Создаем анимацию сдвига с использованием TweenJS из CreateJS
+                createjs.Tween.get(group.position)
+                    .to({ x: targetPositionX }, 500);
+      }else if (Block.anim_type == 8) {       //---------------------Ящик
+                const initialPositionZ = initialGroupState[group.uuid].positionZ;
+                let targetPositionZ = initialPositionZ + 0.4;
+
+                // Проверяем, была ли группа уже сдвинута, если да - возвращаем в исходное положение
+                if (group.position.z !== initialPositionZ) {
+                    targetPositionZ = initialPositionZ;
+                }
+
+                // Создаем анимацию сдвига с использованием TweenJS из CreateJS
+                createjs.Tween.get(group.position)
+                    .to({ z: targetPositionZ }, 500);
+          }
+  }
+// Добавляем обработчик клика на окно
+window.addEventListener('click', onClick);

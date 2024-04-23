@@ -16,28 +16,43 @@ def import_size(obj,size_datas):
                                 size = size_data['Size'],
                                 length = size_data['Length'],
                                 width = size_data['Width'],
+                                block = size_data['OwnerId']
                             )
+
+def import_block(obj,blocks_data):
+    for block_data in blocks_data:
+        Block.objects.create(
+            uid=block_data['Id'],
+            name=block_data['Name'],
+            visibility=True,  # Assuming visibility is always True
+            color="#FFFFFF",  # Assuming color is always white
+            length=block_data['Length'],
+            width=block_data['Width'],
+            depth=block_data['Depth'],
+            position_x=block_data['PositionX'],
+            position_y=block_data['PositionY'],
+            position_z=block_data['PositionZ'],
+            rotation_x=block_data['RotX'],
+            rotation_y=block_data['RotY'],
+            rotation_z=block_data['RotZ'],
+            rotation_w=block_data['RotW'],
+            project=obj,
+            parent=block_data['OwnerId'],
+            anim_type = block_data['AnimType'],
+            furn_type = block_data['FurnType'],
+            anim_axis_start_x = block_data['AnimAxisStartX'],
+            anim_axis_start_y = block_data['AnimAxisStartY'],
+            anim_axis_start_z = block_data['AnimAxisStartZ'],
+            anim_axis_end_x = block_data['AnimAxisEndX'],
+            anim_axis_end_y = block_data['AnimAxisEndY'],
+            anim_axis_end_z = block_data['AnimAxisEndZ'],
+        )
 
 def import_panels(obj,panels_data):
     for panel_data in panels_data:
                             #print(f"panel_data: {panel_data}")
 
-                            # Получаем или создаем блок
-                            block, created = Block.objects.get_or_create(
-                                name=panel_data['Owner'],  # Используем имя владельца панели как имя блока
-                                project=obj,
-                                defaults={
-                                    'visibility': True,
-                                    'color': '#FFFFFF',
-                                    'position_x': 0.0,
-                                    'position_y': 0.0,
-                                    'position_z': 0.0,
-                                    'rotation_x': 0.0,
-                                    'rotation_y': 0.0,
-                                    'rotation_z': 0.0,
-                                    'rotation_w': 1.0,
-                                }
-                            )
+                            
                             # Получаем или создаем материал
                             mat_id = 0
                             if "MaterialId" in panel_data:
@@ -53,7 +68,7 @@ def import_panels(obj,panels_data):
                             panel = Panel.objects.create(
                                 name=panel_data['Name'],
                                 project=obj,
-                                block=block,
+                                block=panel_data['OwnerId'],
                                 position=panel_data['ArtPos'],
                                 length=panel_data['Length'],
                                 width=panel_data['Width'],

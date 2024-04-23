@@ -1,0 +1,32 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <button id="continue_button" class="btn btn-primary">Продовжить</button>
+    <div class="row">
+        <div class="col-md-4">
+            <h2>Налаштування</h2>     
+        </div>
+        <div class="col-md-8">
+        </div>
+    </div> 
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="importmap">
+    {
+        "imports": {
+            "three": "/static/js/three/three.module.js",
+            "three/addons/": "/static/js/three/jsm/"
+        }
+    }
+</script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script type="module" src="{% static 'js/view.js' %}"></script>
+
+
+{% endblock %}

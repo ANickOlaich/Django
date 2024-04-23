@@ -1,0 +1,129 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <form method="post" id="myForm" action="{% url 'material_edit' material.pk %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" id="canvasImage" name="image" value="">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Назва матеріалу</label>
+                    <input type="text" class="form-control" id="name" name="name" value ="{{material.name}}">
+                    {% if form.errors.name %}
+                        <p class="text-danger">{{ form.errors.name }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="material_type" class="form-label">Тип материала</label>
+                    <select class="form-select" id="material_type" name="material_type">
+                        {% for type in types %}
+                            {% if type == material.material_type %}
+                                <option selected value="{{ type.pk }}">{{ type.name }}</option>
+                            {% else %}
+                                <option value="{{ type.pk }}">{{ type.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.errors.material_type %}
+                        <p class="text-danger">{{ form.errors.material_type }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="article" class="form-label">Артікул</label>
+                    <input type="text" class="form-control" id="article" name="article" value ="{{material.article}}">
+                    {% if form.errors.article %}
+                        <p class="text-danger">{{ form.errors.article }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="page_link" class="form-label">Посилання на сайт постачальника</label>
+                    <input type="text" class="form-control" id="page_link" name="page_link" value ="{{material.page_link}}">
+                    {% if form.errors.page_link %}
+                        <p class="text-danger">{{ form.errors.page_link }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="roughness" class="form-label">Матовий</label>
+                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="roughness" name="roughness" value="{{material.roughness}}" onchange="update()">
+                    {% if form.errors.roughness %}
+                        <p class="text-danger">{{ form.errors.roughness }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="metalness" class="form-label">Метал</label>
+                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="metalness" name="metalness" value="{{material.metalness}}" onchange="update()">
+                    {% if form.errors.metalness %}
+                        <p class="text-danger">{{ form.errors.metalness }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="transmission" class="form-label">Прозорість</label>
+                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="transmission" name="transmission" value="{{material.transmission}}" onchange="update()">
+                    {% if form.errors.transmission %}
+                        <p class="text-danger">{{ form.errors.transmission }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="clearcoat" class="form-label">Покриття</label>
+                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="clearcoat" name="clearcoat" value="{{material.clearcoat}}" onchange="update()">
+                    {% if form.errors.clearcoat %}
+                        <p class="text-danger">{{ form.errors.clearcoat }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="clearcoatRoughness" class="form-label">Шорсткість покриття</label>
+                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="clearcoatRoughness" name="clearcoatRoughness" value="{{material.clearcoatRoughness}}" onchange="update()">
+                    {% if form.errors.clearcoatRoughness %}
+                        <p class="text-danger">{{ form.errors.clearcoatRoughness }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="reflectivity" class="form-label">Відображення</label>
+                    <input type="range" class="form-range" min="0" max="1" step="0.01" id="reflectivity" name="reflectivity" value="{{material.reflectivity}}" onchange="update()">
+                    {% if form.errors.reflectivity %}
+                        <p class="text-danger">{{ form.errors.reflectivity }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="color" class="form-label">Колір</label>
+                    <input type="color" class="form-range" id="color" name="color" value="{{material.color}}" onchange="update()">
+                    {% if form.errors.color %}
+                        <p class="text-danger">{{ form.errors.color }}</p>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="texture_link">Текстура</label>
+                    <input type="file" class="form-control" id="texture_link" name="texture_link" value ="{{material.texture_link}}" onchange="updateTexture()">
+                    
+                  </div>
+                  
+                  
+                
+                  
+                  <button type="submit" class="btn btn-primary">Зберегти</button>
+            </form> 
+            <input type="hidden" class="form-control" id="staticUrl" value ="{% static '/images/' %}">
+            <input type="hidden" class="form-control" id="texture" value ="{{material.texture_link}}">
+        </div>
+        <div class="col-md-8">
+            <canvas id="threeCanvas" style="height: 100vh; width: 100%;"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "/static/js/three/three.module.js",
+            "three/addons/": "/static/js/three/jsm/"
+        }
+    }
+</script>
+<script type="module" src="{% static 'js/material_edit.js' %}"></script>
+{% endblock %}

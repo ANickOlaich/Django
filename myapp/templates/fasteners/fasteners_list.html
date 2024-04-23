@@ -1,0 +1,28 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="mt-5">Список крепежных элементов</h1>
+<form action="{% url 'create_fasteners' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.errors }}
+    <label for="file_input">Загрузить файл STL:</label>
+    <input type="file" name="stl_file" id="file_input">
+    <button type="submit">Создать</button>
+</form>
+
+<div class="row">
+    {% for fastener in fasteners %}
+    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+        <div class="card mb-3">
+            <img src="{{fastener.image.url }}" class="card-img-top" alt="{{ fastener.name }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ fastener.name }}</h5>
+                <p class="card-text">Тип: {{ fastener.fastener_type }}</p>
+                <a href="{% url 'fasteners_detail' fasteners_id=fastener.id %}" class="btn btn-secondary">Подробнее</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

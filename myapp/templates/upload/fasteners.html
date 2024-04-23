@@ -1,0 +1,77 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <button id="continue_button" class="btn btn-primary">Продовжить</button>
+    <div class="row">
+        <div class="col-md-4">
+            <h1>Фурнітура у проекті</h1>
+            {% for item in in_project %}
+            <div class="row border p-2 m-2 {% if item.inBase == 0 %}border-danger{% else %}border-success{% endif %}" id="project-fastener-{{ item.Id }}" onclick="handleItemClick('{{ item.Id }}')">
+                <div class="col-md-8">
+                    <h4>
+                        {{ item.Name }}
+                    </h4>
+                </div>
+                <div class="col-md-4">
+                    <img alt="Bootstrap Image Preview" src="{{ item.Image }}" width="200" height="200" id="in-project-image-{{ item.Id }}" />
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+        
+        
+        <div class="col-md-8">
+            <h2>Фурнітура</h2>
+           
+            <div class="accordion" id="accordion">
+                {% for fastener_type in fasteners_type %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ fastener_type.id }}" aria-expanded="true" aria-controls="collapse{{ fastener_type.id }}">
+                            {{ fastener_type.name }}
+                        </button>
+                    </h2>
+                    <div id="collapse{{ fastener_type.id }}" class="accordion-collapse collapse" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <div class="row">
+                                {% for fastener in fasteners %}
+                                {% if fastener_type.name == fastener.fastener_type.name %}
+                                <div class="col-md-3">
+                                    <div class="row border border-success p-2 m-2" id="fastener-{{ fastener.pk }}" onclick="handleItemClickRight('{{ fastener.pk }}')">
+                                        <div class="col-md-12 ">
+                                            <h3>{{ fastener.name }}</h3>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <img alt="{{ fastener.name }}" src="{{ fastener.image.url }}" class="img-fluid" width="200" height="200" id="fastener-image-{{ fastener.pk }}" />
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+           
+        </div>
+    </div>
+   
+</div>
+<input type="hidden" id="fasteners_in_project" value="{{ in_project_json }}">
+
+
+{% endblock %}
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script src="{% static 'js/upload.js' %}"></script>
+
+
+{% endblock %}

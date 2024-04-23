@@ -1,0 +1,83 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <button id="continue_button" class="btn btn-primary">Продовжить</button>
+    <div class="row">
+        <div class="col-md-4">
+            <h1>Матеріали у проекті</h1>
+            {% for item in in_project %}
+            <div class="row border p-2 m-2 {% if item.inBase == 0 %}border-danger{% else %}border-success{% endif %}" id="project-material-{{ item.id }}" onclick="handleItemClick('{{ item.id }}')">
+                <div class="col-md-8">
+                    <h4>
+                        {{ item.name }}
+                    </h4>
+                </div>
+                <div class="col-md-4">
+                    <img alt="Bootstrap Image Preview" src="{{ item.image }}" width="200" height="200" id="in-project-image-{{ item.id }}" />
+                </div>
+            </div>
+        {% endfor %}
+           
+        </div>
+        
+        
+        <div class="col-md-8">
+            <h2>Матеріали</h2>
+            <div class="accordion" id="accordion">
+                {% for material_type in materials_type %}
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ material_type.id }}" aria-expanded="true" aria-controls="collapse{{ material_type.id }}">
+                        {{ material_type.name }}
+                    </button>
+                  </h2>
+                  <div id="collapse{{ material_type.id }}" class="accordion-collapse collapse" data-bs-parent="#accordion">
+                    <div class="accordion-body">
+                        <div class="row">
+                        {% for material in materials %}
+                            {% if material_type.name == material.material_type.name %}
+                                <div class="col-md-3"> <!-- Для создания четырех колонок используем col-md-3 -->
+                                    <div class="row border border-success p-2 m-2" id="material-{{ material.pk }}" onclick="materialItemClickRight('{{ material.pk }}')">
+                                        <div class="col-md-12 ">
+                                            {% if material.image %}
+                                                <img alt="{{ material.name }}" src="{{ material.image.url }}" class="img-fluid" id="material-image-{{ material.pk }}" />
+                                            {% else %}
+                                                <img alt="" src="" class="img-fluid" id="material-image-{{ material.pk }}" />
+                                            {% endif %}
+                                            <div class="col-md-12">
+                                                <h5>{{ material.name }}</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                    </div>
+                    
+                  </div>
+                </div>
+                {% endfor %}  
+              </div>
+           
+           
+           
+        </div>
+    </div>
+   
+</div>
+
+
+<input type="hidden" id="materials_in_project" value="{{ in_project_json }}">
+{% endblock %}
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script src="{% static 'js/upload.js' %}"></script>
+
+
+{% endblock %}
